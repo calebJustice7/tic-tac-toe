@@ -1,0 +1,50 @@
+services:
+  # ui:
+  #   container_name: ui-dev
+  #   image: ui-dev-image
+  #   build:
+  #     context: client
+  #     dockerfile: Dockerfile.prod
+  #   healthcheck: 
+  #     test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+  #     interval: 40s
+  #     start_period: 60s
+  #     retries: 3
+  #     timeout: 30s
+  ui:
+    container_name: ui-dev
+    image: ui-dev-image
+    build:
+      context: client
+      dockerfile: Dockerfile.development
+    ports:
+      - 8000:8000
+    stdin_open: true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    restart: always
+    networks:
+      - react-express
+    env_file:
+      - ./client/.env
+  server: 
+    container_name: server-dev
+    image: server-dev-image
+    build:
+      context: server
+      dockerfile: Dockerfile.development
+    ports:
+      - 4200:4200
+    stdin_open: true
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    restart: always
+    networks:
+      - react-express
+    env_file:
+      - ./server/.env
+
+networks:
+  react-express:

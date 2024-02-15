@@ -1,0 +1,28 @@
+{
+  "name": "MERNt-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "lint:ui": "cd ./client && npm run lint",
+    "lint:server": "cd ./server && npm run lint",
+    "start:ui": "cd ./client && npm run dev",
+    "start:server": "cd ./server && npm run start",
+    "lint": "concurrently \"npm run lint:ui\" \"npm run lint:server\"",
+    "dev": "concurrently \"npm run start:ui\" \"npm run start:server\"",
+    "start": "docker compose up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calebJustice7/MERNt-template.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/calebJustice7/MERNt-template#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^8.0.3"
+  }
+}
