@@ -5,6 +5,7 @@
       "outDir": "./dist",
       "strict": true,
       "esModuleInterop": true,
+      "moduleResolution": "node",
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
       "typeRoots": ["./src/types", "./node_modules/@types"],
@@ -12,6 +13,7 @@
         "*": ["./src/types/*.d.ts"]
       }
     },
+    "moduleResolution": "node",
     "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
     "exclude": ["node_modules"]
   }

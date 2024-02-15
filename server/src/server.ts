@@ -3,20 +3,30 @@ import mongoose from "mongoose";
 import ensureEnv from "./helpers/ensureEnv";
 import authRouter from "./services/auth/authAPI";
 import usersRouter from "./services/user/userAPI";
+import roomsRouter from "./services/room/roomAPI";
 import errorMiddleware from "./error/errorMiddleware";
 import cors from "cors";
 import sessionMiddleware from "./auth/sessionMiddleware";
+import { initializeSocketListeners } from "./services/room/roomController";
+import httpServer from "http";
 import { envVars } from "./config";
 import { Server as HttpServer } from "http";
+import io from "socket.io";
 
 class Server {
     app: Express;
     mongo_uri: string;
     base_uri: string;
-    server?: HttpServer;
+    server: HttpServer;
 
     constructor() {
         this.app = express();
+        this.server = httpServer.createServer(this.app);
+
+        const socketServer = new io.Server(this.server);
+        initializeSocketListeners(socketServer);
+        this.app.set("io", socketServer);
+
         this.base_uri = "/api/v1";
         this.mongo_uri = ensureEnv("MONGO_URI");
     }
@@ -27,6 +37,7 @@ class Server {
 
         this.app.use(this.base_uri + "/auth", authRouter);
         this.app.use(this.base_uri + "/users", usersRouter);
+        this.app.use(this.base_uri + "/rooms", roomsRouter);
         this.app.get("/health-check", (_req, res) => res.status(200).send("Healthy"));
 
         this.app.use(errorMiddleware);
@@ -60,14 +71,13 @@ class Server {
     }
 
     async start(): Promise<void> {
-        // this.verifyEnv();
+        this.verifyEnv();
 
-        // const port = Number(ensureEnv("PORT"));
-        const port = 4200;
+        const port = Number(ensureEnv("PORT"));
 
         this.initializeEndpoints();
 
-        this.server = this.app.listen(port, () => {
+        this.app.listen(port, () => {
             console.log(`API running on port ${port}`);
             return Promise.resolve();
         });
