@@ -1,12 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import api from "../api/api";
 
-export const useCreateRoom = () => {
-  const createRoom = async (): Promise<string> => {
-    return api.post("/rooms").then((res) => res.data);
+export const useGetRoom = (id: string) => {
+  const getRoom = async (): Promise<Room> => {
+    return api.get(`/rooms/${id}`).then((res) => res.data);
   };
 
-  return useMutation({
-    mutationFn: createRoom,
+  return useQuery({
+    queryFn: getRoom,
+    queryKey: ["room"],
   });
 };

@@ -23,7 +23,7 @@ class Server {
         this.app = express();
         this.server = httpServer.createServer(this.app);
 
-        const socketServer = new io.Server(this.server);
+        const socketServer = new io.Server(this.server, { cors: { origin: [ensureEnv("BASE_URL")] } });
         initializeSocketListeners(socketServer);
         this.app.set("io", socketServer);
 
@@ -77,7 +77,7 @@ class Server {
 
         this.initializeEndpoints();
 
-        this.app.listen(port, () => {
+        this.server.listen(port, () => {
             console.log(`API running on port ${port}`);
             return Promise.resolve();
         });

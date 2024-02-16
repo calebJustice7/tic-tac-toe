@@ -1,21 +1,16 @@
-import { useEffect } from "react";
-import { useCreateRoom } from "../../queries/Room";
-// import io from "socket.io-client";
+import { useContext } from "react";
+import { SocketContext } from "../../context/SocketContext";
+import { v1 } from "uuid";
+import { useNavigate } from "@tanstack/react-router";
 
 function Home() {
-  const createRoom = useCreateRoom();
-
-  useEffect(() => {
-    // console.log(io);
-    // const socket = io(import.meta.env.VITE_SERVER_URL);
-    // socket.on("connect", () => {
-    // console.log("YEAH");
-    // });
-  }, []);
+  const socket = useContext(SocketContext);
+  const navigate = useNavigate();
 
   const handleCreateRoom = async () => {
-    const roomId = await createRoom.mutateAsync();
-    console.log(roomId);
+    socket.emit("create-room", v1(), (id: string) => {
+      navigate({ to: "/game/" + id });
+    });
   };
 
   return (
