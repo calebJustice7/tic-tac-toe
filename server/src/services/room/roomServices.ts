@@ -1,7 +1,7 @@
 import rDAL from "./roomDAL";
 
 export const getRoom = async (id: string) => {
-    return rDAL.getRoom(id);
+    return await rDAL.getRoom(id);
 };
 
 export const createRoom = async (roomId: string, user1SocketId: string) => {
@@ -19,5 +19,30 @@ export const handleDeleteRoom = async (userSocketId: string) => {
         })
         .map((room) => room._id);
 
-    return rDAL.deleteRooms(roomsIdsToDelete);
+    const updatePromises = activeRooms
+        .filter((room) => {
+            if (room.user1 && room.user2) return true;
+            else return false;
+        })
+        .map((room) => {
+            return rDAL.updateRoom(
+                { roomId: room.roomId },
+                { $unset: { [room.user1 === userSocketId ? "user1" : "user2"]: true } },
+            );
+        });
+
+    return Promise.all([rDAL.deleteRooms(roomsIdsToDelete), ...updatePromises]);
+};
+
+export const addUserToRoom = async (userPosition: "user1" | "user2", userSocketId: string, roomId: string) => {
+    return await rDAL.updateRoom({ roomId: roomId }, { [userPosition]: userSocketId });
+};
+
+export const getRoomBySocketId = async (userSocketId: string) => {
+    const rooms = await rDAL.getActiveRooms(userSocketId);
+    if (rooms && rooms.length) {
+        return rooms[0].roomId;
+    } else {
+        return null;
+    }
 };

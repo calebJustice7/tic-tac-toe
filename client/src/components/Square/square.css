@@ -1,0 +1,61 @@
+.square {
+    width: 10vw;
+    height: 10vw;
+    border: 3px solid rgb(248, 243, 233);
+    transition: 0.1s all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 200;
+}
+
+.square div {
+    font-size: 4em;
+    color: rgb(131, 220, 164);
+}
+
+.square:hover:not(.opponent-turn) {
+    background-color: #eaeaea30;
+    cursor: pointer;
+}
+
+.square-1 {
+    border-left: none;
+    border-top: none;
+}
+
+.square-2 {
+    border-top: none;
+}
+
+.square-3 {
+    border-right: none;
+    border-top: none;
+}
+
+.square-4 {
+    border-left: none;
+}
+
+.square-5 {
+    
+    
+}
+
+.square-6 {
+    border-right: none;
+}
+
+.square-7 {
+    border-left: none;
+    border-bottom: none;
+}
+
+.square-8 {
+    border-bottom: none;
+}
+
+.square-9 {
+    border-right: none;
+    border-bottom: none;
+}

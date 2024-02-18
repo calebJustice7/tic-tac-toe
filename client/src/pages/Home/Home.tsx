@@ -1,15 +1,31 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { SocketContext } from "../../context/SocketContext";
 import { v1 } from "uuid";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Home() {
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
+  const [roomId, setRoomId] = useState("");
+  const queryClient = useQueryClient();
 
   const handleCreateRoom = async () => {
     socket.emit("create-room", v1(), (id: string) => {
       navigate({ to: "/game/" + id });
+    });
+  };
+
+  const joinRoom = () => {
+    socket.emit("join-room", roomId, (message: string) => {
+      if (message === "Success") {
+        toast.success("Room Joined");
+        queryClient.removeQueries({ queryKey: ["room"] });
+        navigate({ to: "/game/" + roomId });
+      } else {
+        toast.error(message);
+      }
     });
   };
 
@@ -26,8 +42,16 @@ function Home() {
         <div className="mt-10 text-center container mx-auto">
           <div className="mr-3 text-2xl">Join a room</div>
           <div>
-            <input type="text" placeholder="Room ID" className="input mt-2 input-bordered w-full max-w-xs" />
-            <button className="btn btn-primary">Join</button>
+            <input
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+              type="text"
+              placeholder="Room ID"
+              className="input mt-2 input-bordered w-full max-w-xs"
+            />
+            <button className="btn btn-primary" disabled={!roomId.length} onClick={joinRoom}>
+              Join
+            </button>
           </div>
         </div>
       </div>

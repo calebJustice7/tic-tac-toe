@@ -8,6 +8,6 @@ export const useGetRoom = (id: string) => {
 
   return useQuery({
     queryFn: getRoom,
-    queryKey: ["room"],
+    queryKey: ["room", id],
   });
 };

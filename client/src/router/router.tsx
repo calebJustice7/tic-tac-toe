@@ -15,7 +15,7 @@ import PageNotFound from "../pages/PageNotFound";
 import { actions, subjects } from "../auth/ability";
 import { QueryClient } from "@tanstack/react-query";
 import { AUTH_QUERY_KEY, getAuth } from "../queries/Auth";
-import GameBoard from "../pages/GameBoard";
+import Game from "../pages/Game";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -53,10 +53,10 @@ const indexRoute = new Route({
   beforeLoad: requireAuth(),
 });
 
-const gameBoardRoute = new Route({
+const GameRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/game/$id",
-  component: GameBoard,
+  component: Game,
 
   beforeLoad: requireAuth(),
 });
@@ -72,7 +72,7 @@ const notFoundRoute = new NotFoundRoute({
   component: PageNotFound,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, gameBoardRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, loginRoute, GameRoute]);
 
 const router = new Router({
   routeTree,

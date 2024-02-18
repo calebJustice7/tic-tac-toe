@@ -1,23 +1,48 @@
 import { Server, Socket } from "socket.io";
 import { AsyncRequestHandler, asyncErrorWrapper } from "../../error/errorWrapper";
 import { HttpStatusCode } from "axios";
-import { createRoom, getRoom, handleDeleteRoom } from "./roomServices";
+import { addUserToRoom, createRoom, getRoom, handleDeleteRoom, getRoomBySocketId } from "./roomServices";
 import { getRoomValidator } from "./roomValidators";
 import z from "zod";
 
 export const initializeSocketListeners = (io: Server) => {
     io.on("connection", (socket: Socket) => {
         socket.on("create-room", async (id: string, cb: (id: string) => void) => {
-            socket.join(id);
             await createRoom(id, socket.id);
+
+            socket.join(id);
             cb(id);
         });
 
-        socket.on("disconnect", () => {
-            try {
-                handleDeleteRoom(socket.id);
-            } catch (er) {
-                console.log(er, "OHNO");
+        socket.on("join-room", async (id: string, cb: (message: string) => void) => {
+            const room = await getRoom(id);
+            if (!room) cb("Room Not Found");
+            if (room && room.user1 && room.user2) cb("Room Full");
+            else if (room && !room.user1) {
+                await addUserToRoom("user1", socket.id, id);
+                socket.join(id);
+                cb("Success");
+                socket.to(id).emit("user-join", `User ${socket.id} joined`, { ...room.toObject(), user1: socket.id });
+            } else if (room && !room.user2) {
+                await addUserToRoom("user2", socket.id, id);
+                socket.join(id);
+                cb("Success");
+                socket.to(id).emit("user-join", `User ${socket.id} joined`, { ...room.toObject(), user2: socket.id });
+            } else {
+                cb("Unknown Error");
+            }
+        });
+
+        socket.on("player-move", (rowIdx: number, squareIdx: number, game: ("x" | "o" | null)[][], room: Room) => {
+            game[rowIdx][squareIdx] = socket.id === room.user1 ? "x" : "o";
+            socket.nsp.to(room.roomId).emit("player-move", game, socket.id === room.user1 ? room.user2 : room.user1);
+        });
+
+        socket.on("disconnect", async () => {
+            const room = await getRoomBySocketId(socket.id);
+            await handleDeleteRoom(socket.id);
+            if (room) {
+                socket.to(room).emit("user-leave", `User ${socket.id} left the game`, room);
             }
         });
     });
