@@ -46,3 +46,35 @@ export const getRoomBySocketId = async (userSocketId: string) => {
         return null;
     }
 };
+
+// 1st row
+// 2nd row
+// 3rd row
+
+// 1st col
+// 2nd col
+// 3rd col
+
+// corner top
+// corner bottom
+export const checkForWin = (game: ("x" | "o" | null)[][], playersChar: "x" | "o") => {
+    if (game[0].every((char) => char === playersChar)) return "win";
+    if (game[1].every((char) => char === playersChar)) return "win";
+    if (game[2].every((char) => char === playersChar)) return "win";
+
+    if (game[0][0] === playersChar && game[1][0] === playersChar && game[2][0] === playersChar) return "win";
+    if (game[0][1] === playersChar && game[1][1] === playersChar && game[2][1] === playersChar) return "win";
+    if (game[0][2] === playersChar && game[1][2] === playersChar && game[2][2] === playersChar) return "win";
+
+    if (game[0][0] === playersChar && game[1][1] === playersChar && game[2][2] === playersChar) return "win";
+    if (game[0][2] === playersChar && game[1][1] === playersChar && game[2][0] === playersChar) return "win";
+
+    if (
+        game[0].every((char) => char !== null) &&
+        game[1].every((char) => char !== null) &&
+        game[2].every((char) => char !== null)
+    )
+        return "draw";
+
+    return "no-change";
+};

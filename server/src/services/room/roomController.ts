@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { AsyncRequestHandler, asyncErrorWrapper } from "../../error/errorWrapper";
 import { HttpStatusCode } from "axios";
-import { addUserToRoom, createRoom, getRoom, handleDeleteRoom, getRoomBySocketId } from "./roomServices";
+import { addUserToRoom, createRoom, getRoom, handleDeleteRoom, getRoomBySocketId, checkForWin } from "./roomServices";
 import { getRoomValidator } from "./roomValidators";
 import z from "zod";
 
@@ -34,8 +34,11 @@ export const initializeSocketListeners = (io: Server) => {
         });
 
         socket.on("player-move", (rowIdx: number, squareIdx: number, game: ("x" | "o" | null)[][], room: Room) => {
-            game[rowIdx][squareIdx] = socket.id === room.user1 ? "x" : "o";
-            socket.nsp.to(room.roomId).emit("player-move", game, socket.id === room.user1 ? room.user2 : room.user1);
+            const playersChar = socket.id === room.user1 ? "x" : "o";
+            const nextPlayersTurn = socket.id === room.user1 ? room.user2 : room.user1;
+            game[rowIdx][squareIdx] = playersChar;
+            const result = checkForWin(game, playersChar);
+            socket.nsp.to(room.roomId).emit("player-move", game, nextPlayersTurn, result, socket.id);
         });
 
         socket.on("disconnect", async () => {

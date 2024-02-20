@@ -14,6 +14,7 @@ function Game() {
   const [game, setGame] = useState<("x" | "o" | null)[][]>(new Array(3).fill(new Array(3).fill(null)));
   const queryClient = useQueryClient();
   const [currentPlayerTurn, setCurrentPlayerTurn] = useState<string | null>(null);
+  const [lockGame, setLockGame] = useState(false);
 
   const resetGame = () => {
     setGame(new Array(3).fill(new Array(3).fill(null)));
@@ -21,11 +22,6 @@ function Game() {
     if (!query.data) {
       toast.error("An unknown error occured");
       return;
-    }
-    if (query.data.user1 && query.data.user2) {
-      setCurrentPlayerTurn(query.data.user1);
-    } else {
-      setCurrentPlayerTurn(null);
     }
   };
 
@@ -40,12 +36,41 @@ function Game() {
       toast.warning(msg);
       queryClient.refetchQueries({ queryKey: ["room"] });
       resetGame();
+      setCurrentPlayerTurn(null);
     });
 
-    socket.on("player-move", (game: ("x" | "o" | null)[][], userSocketId: string) => {
-      setGame(game);
-      setCurrentPlayerTurn(userSocketId);
-    });
+    socket.on(
+      "player-move",
+      (
+        game: ("x" | "o" | null)[][],
+        userSocketId: string,
+        gameStatus: "win" | "draw" | "no-change",
+        playerId: string,
+      ) => {
+        if (!query.data) {
+          toast.error("Unknown error");
+          return;
+        }
+        setGame(game);
+        setCurrentPlayerTurn(userSocketId);
+        if (gameStatus === "win") {
+          playerId === socket.id ? toast.success("You won!") : toast.error("Your opponent won :(");
+          setLockGame(true);
+          setTimeout(() => {
+            setLockGame(false);
+            resetGame();
+            setCurrentPlayerTurn(playerId);
+          }, 1500);
+        } else if (gameStatus === "draw") {
+          setLockGame(true);
+          toast.warning("The game was a draw!");
+          setTimeout(() => {
+            setLockGame(false);
+            resetGame();
+          }, 1500);
+        }
+      },
+    );
 
     return () => {
       socket.off("user-join");
@@ -72,13 +97,19 @@ function Game() {
       setCurrentPlayerTurn(query.data.user1);
     }
     // eslint-disable-next-line
-  }, [query.data]);
+  }, [query.data, query.status]);
 
   if (!socket.id) return null;
 
   return (
     <div>
-      <GameBoard userSocketId={socket.id} currentPlayerTurn={currentPlayerTurn} game={game} updateBoard={updateBoard} />
+      <GameBoard
+        userSocketId={socket.id}
+        lockGame={lockGame}
+        currentPlayerTurn={currentPlayerTurn}
+        game={game}
+        updateBoard={updateBoard}
+      />
     </div>
   );
 }

@@ -5,9 +5,11 @@ interface GameBoardProps {
   updateBoard: (rowIdx: number, squareIdx: number) => void;
   currentPlayerTurn: string | null;
   userSocketId: string;
+  lockGame: boolean;
 }
-function GameBoard({ game, updateBoard, currentPlayerTurn, userSocketId }: GameBoardProps) {
+function GameBoard({ game, updateBoard, currentPlayerTurn, userSocketId, lockGame }: GameBoardProps) {
   const handleClick = (rowIdx: number, squareIdx: number) => {
+    if (lockGame) return;
     if (currentPlayerTurn !== userSocketId || game[rowIdx][squareIdx] !== null) return;
     updateBoard(rowIdx, squareIdx);
   };
