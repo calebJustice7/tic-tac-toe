@@ -21,15 +21,14 @@ function NavBar() {
   return (
     <div className="drawer">
       <div className="drawer-content flex flex-col">
-        <div className="w-full bg-black flex space-around flex justify-between items-center p-2">
+        <div className="w-full bg-black flex space-around flex justify-between items-center p-2 flex-col sm:flex-row">
           <div className="px-2 mx-2">
             <Link to="/">Tic Tac Toe</Link>
           </div>
           {!!id && (
-            <div className="mr-3 flex items-center">
-              <div>Room ID: {id}</div>
+            <div className="mr-3 flex items-center sm:py-0 py-2" onClick={copyText}>
+              <div>Copy Room Id</div>
               <svg
-                onClick={copyText}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -49,7 +48,7 @@ function NavBar() {
 
           <div>
             {status === "authenticated" && (
-              <button onClick={logoutUser} className="btn btn-secondary text-secondary-content">
+              <button onClick={logoutUser} className="btn btn-secondary text-secondary-content sm:mt-0 mt-2">
                 Logout
               </button>
             )}

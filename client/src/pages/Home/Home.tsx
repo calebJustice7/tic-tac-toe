@@ -31,7 +31,7 @@ function Home() {
 
   return (
     <>
-      <h1 className="text-4xl text-center mt-10">Create a room and invite your friend!</h1>
+      <h1 className="text-4xl text-center mt-10 px-2">Create a room and invite your friend!</h1>
       <div>
         <div className="container mx-auto text-center">
           <button onClick={handleCreateRoom} className="btn btn-secondary text-secondary-content mt-3">

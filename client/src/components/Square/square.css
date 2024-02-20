@@ -1,12 +1,19 @@
 .square {
-    width: 10vw;
-    height: 10vw;
+    width: 15vw;
+    height: 15vw;
     border: 3px solid rgb(248, 243, 233);
     transition: 0.1s all;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 200;
+}
+
+@media screen and (max-width: 875px) {
+    .square {
+        width: 22vw;
+        height: 22vw;
+    }
 }
 
 .square div {
